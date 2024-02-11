@@ -1,104 +1,7 @@
-terraform {
-  required_providers {
-    aws = {
-      source  = "hashicorp/aws"
-      version = "~> 5.36"
-    }
-    tls = {
-      source  = "hashicorp/tls"
-      version = "~> 4.0"
-    }
-    null = {
-      source  = "hashicorp/null"
-      version = "~> 3.2"
-    }
-  }
-}
-
-locals {
-  region = "eu-central-1" # Select the region you want to deploy the resources in
-  zone  = "eu-central-1a" # https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-regions-availability-zones.html
-  vpc_cidr = "10.11.0.0/16"
-  subnet_cidr = "10.11.22.0/24"
-  version = "1"
-
-  ami = "ami-0ced908879ca69797" # Windows Server 2022 Base
-  instance_type = "g4dn.xlarge" # https://aws.amazon.com/ec2/instance-types/g4/
-}
-
-provider "tls" {}
-
-provider "aws" {
-  region = local.region
-}
 
 resource "tls_private_key" "opencloudplay" {
   algorithm = "RSA"
   rsa_bits  = 2048
-}
-
-resource "aws_vpc" "opencloudplay" {
-  cidr_block = local.vpc_cidr
-  enable_dns_support = true
-  enable_dns_hostnames = true
-  tags = {
-    Name = "opencloudplay-com-vpc-${local.version}"
-  }
-}
-
-resource "aws_subnet" "opencloudplay" {
-  vpc_id     = aws_vpc.opencloudplay.id
-  cidr_block = local.subnet_cidr
-  availability_zone = local.zone
-  tags = {
-    Name = "opencloudplay-com-subnet-${local.version}"
-  }
-}
-
-resource "aws_internet_gateway" "opencloudplay" {
-  vpc_id = aws_vpc.opencloudplay.id
-
-  tags = {
-    Name = "opencloudplay-com-igw-${local.version}"
-  }
-}
-
-resource "aws_route" "internet_access" {
-  route_table_id         = aws_vpc.opencloudplay.main_route_table_id
-  destination_cidr_block = "0.0.0.0/0"
-  gateway_id             = aws_internet_gateway.opencloudplay.id
-}
-
-
-resource "aws_security_group" "allow_ssh_rdp" {
-  name        = "allow_ssh_rdp"
-  description = "Allow SSH and RDP inbound traffic"
-  vpc_id      = aws_vpc.opencloudplay.id
-
-  ingress {
-    from_port   = 22
-    to_port     = 22
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  ingress {
-    from_port   = 3389
-    to_port     = 3389
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  tags = {
-    Name = "ssh_rdp_sg"
-  }
 }
 
 resource "aws_key_pair" "opencloudplay" {
@@ -119,19 +22,9 @@ resource "aws_iam_user_policy_attachment" "opencloudplay" {
   policy_arn = "arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess"
 }
 
-output "access_key_id" {
-  value     = aws_iam_access_key.opencloudplay.id
-  sensitive = true
-}
-
-output "secret_access_key" {
-  value     = aws_iam_access_key.opencloudplay.secret
-  sensitive = true
-}
-
 resource "aws_instance" "opencloudplay" {
-  ami           = local.ami
-  instance_type = local.instance_type
+  ami           = var.ami
+  instance_type = var.instance_type
   key_name      = aws_key_pair.opencloudplay.key_name
 
   subnet_id              = aws_subnet.opencloudplay.id
@@ -190,14 +83,6 @@ resource "aws_instance" "opencloudplay" {
     Name = "WindowsGPUDedicatedInstance"
   }
   depends_on = [aws_internet_gateway.opencloudplay, aws_key_pair.opencloudplay, aws_iam_user_policy_attachment.opencloudplay]
-}
-
-resource "aws_eip" "opencloudplay" {
-  instance = aws_instance.opencloudplay.id
-
-  tags = {
-    Name = "EIPForWindowsGPUInstance"
-  }
 }
 
 resource "time_sleep" "wait" {
