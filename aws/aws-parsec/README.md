@@ -1,8 +1,3 @@
-## Terraform Implementation: AWS GPU-Based VM with NVIDIA Drivers and Parsec
-
-This project implements an AWS GPU-based virtual machine (VM) equipped with NVIDIA gaming drivers and Parsec for high-performance gaming and streaming. Additionally, Steam and Brave browser come pre-installed for an enhanced user experience.
-
-
 ## Requirements
 
 | Name | Version |
@@ -15,10 +10,10 @@ This project implements an AWS GPU-based virtual machine (VM) equipped with NVID
 
 | Name | Version |
 |------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | ~> 5.36 |
-| <a name="provider_null"></a> [null](#provider\_null) | ~> 3.2 |
-| <a name="provider_time"></a> [time](#provider\_time) | n/a |
-| <a name="provider_tls"></a> [tls](#provider\_tls) | ~> 4.0 |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | 5.36.0 |
+| <a name="provider_null"></a> [null](#provider\_null) | 3.2.2 |
+| <a name="provider_time"></a> [time](#provider\_time) | 0.10.0 |
+| <a name="provider_tls"></a> [tls](#provider\_tls) | 4.0.5 |
 
 ## Modules
 
@@ -36,6 +31,7 @@ No modules.
 | [aws_internet_gateway.opencloudplay](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/internet_gateway) | resource |
 | [aws_key_pair.opencloudplay](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/key_pair) | resource |
 | [aws_route.internet_access](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/route) | resource |
+| [aws_route_table.opencloudplay](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/route_table) | resource |
 | [aws_security_group.allow_ssh_rdp](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/security_group) | resource |
 | [aws_subnet.opencloudplay](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/subnet) | resource |
 | [aws_vpc.opencloudplay](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/vpc) | resource |
@@ -45,11 +41,16 @@ No modules.
 
 ## Inputs
 
-No inputs.
+| Name | Description | Type | Default | Required |
+|------|-------------|------|---------|:--------:|
+| <a name="input_ami"></a> [ami](#input\_ami) | AMI ID for the instance | `string` | `"ami-0ced908879ca69797"` | no |
+| <a name="input_instance_type"></a> [instance\_type](#input\_instance\_type) | Instance type for the EC2 instance | `string` | `"g4dn.xlarge"` | no |
+| <a name="input_namespace"></a> [namespace](#input\_namespace) | Version for tagging resources | `string` | `"1"` | no |
+| <a name="input_region"></a> [region](#input\_region) | The AWS region to deploy resources in | `string` | `"eu-central-1"` | no |
+| <a name="input_subnet_cidr"></a> [subnet\_cidr](#input\_subnet\_cidr) | CIDR block for the subnet | `string` | `"10.11.22.0/24"` | no |
+| <a name="input_vpc_cidr"></a> [vpc\_cidr](#input\_vpc\_cidr) | CIDR block for the VPC | `string` | `"10.11.0.0/16"` | no |
+| <a name="input_zone"></a> [zone](#input\_zone) | The availability zone within the region | `string` | `"eu-central-1a"` | no |
 
 ## Outputs
 
-| Name | Description |
-|------|-------------|
-| <a name="output_access_key_id"></a> [access\_key\_id](#output\_access\_key\_id) | n/a |
-| <a name="output_secret_access_key"></a> [secret\_access\_key](#output\_secret\_access\_key) | n/a |
+No outputs.

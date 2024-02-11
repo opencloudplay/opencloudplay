@@ -22,16 +22,6 @@ resource "aws_iam_user_policy_attachment" "opencloudplay" {
   policy_arn = "arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess"
 }
 
-# output "access_key_id" {
-#   value     = aws_iam_access_key.opencloudplay.id
-#   sensitive = true
-# }
-
-# output "secret_access_key" {
-#   value     = aws_iam_access_key.opencloudplay.secret
-#   sensitive = true
-# }
-
 resource "aws_instance" "opencloudplay" {
   ami           = var.ami
   instance_type = var.instance_type
