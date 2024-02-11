@@ -23,12 +23,18 @@ resource "aws_internet_gateway" "opencloudplay" {
   }
 }
 
-resource "aws_route_table" "opencloudplay" {
+data "aws_route_table" "main" {
   vpc_id = aws_vpc.opencloudplay.id
+
+  filter {
+    name   = "association.main"
+    values = ["true"]
+  }
 }
 
+
 resource "aws_route" "internet_access" {
-  route_table_id         = aws_route_table.opencloudplay.id
+  route_table_id         = data.aws_route_table.main.id
   destination_cidr_block = "0.0.0.0/0"
   gateway_id             = aws_internet_gateway.opencloudplay.id
 }
